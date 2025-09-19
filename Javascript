@@ -1,0 +1,29 @@
+const express = require('express');
+const app = express();
+const http = require('http').createServer(app);
+const io = require('socket.io')(http, {
+  cors: {
+    origin: "*", // اسمح للجميع بالاتصال (لتجربة)
+    methods: ["GET", "POST"]
+  }
+});
+
+// ... (بقية إعداداتك و routes الخاصة بك) ...
+
+// ✅ هذا هو السطر الأكثر أهمية
+const PORT = process.env.PORT || 3000; // يستخدم PORT من Render، أو 3000 محليًا
+
+http.listen(PORT, '0.0.0.0', () => { // '0.0.0.0' مهم للاستماع على جميع الواجهات
+  console.log(`Server is running on port ${PORT}`);
+});
+
+// مثال على handling حدث connection من WebSocket
+io.on('connection', (socket) => {
+  console.log('a user connected');
+  socket.on('chat message', (msg) => {
+    io.emit('chat message', msg);
+  });
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
+});
